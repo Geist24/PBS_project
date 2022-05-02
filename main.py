@@ -5,6 +5,7 @@ def main():
     master = Tk()
     master.title = 'Boulder, Parchment, Shears'
     master.geometry('600x350')
+    master.configure(bg='blue')
     center(master)
     master.resizable(False, False)
     widgets = Window(master)

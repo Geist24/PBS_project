@@ -1,41 +1,92 @@
 from tkinter import *
 import bps
 
+player_wins = 0
+comp_wins = 0
+
 
 class Window:
     def __init__(self, window):
-        self.__comp_wins = 0
-        self.__player_wins = 0
         self.master = window
-        self.player_frame = Frame(self.master)
+        self.game_frame = Frame(window)
+        self.player_frame = Frame(self.game_frame)
         self.choice = StringVar()
-        self.computer_wins = Label(self.player_frame, text=f'player wins: {self.__player_wins}')
+        self.player_winner = StringVar()
+        self.total_player_wins = Label(self.player_frame, textvariable=self.player_winner)
         self.player_label = Label(self.player_frame, text='Your Choice')
         self.player_label.pack(side=TOP)
+        self.total_player_wins.pack(side=BOTTOM)
         self.player = Entry(self.player_frame, textvariable=self.choice)
         self.player.pack(side=BOTTOM)
-        self.player_frame.place(x=75, y=150)
+        self.player_frame.pack(pady=40)
 
-        self.bottom = Frame(self.master)
+        self.bottom = Frame(self.game_frame)
         self.begin = Button(self.bottom, text='Choose', command=self.game_start)
         self.begin.pack(side=LEFT)
-        self.bottom.place(x=275, y=300)
+        self.bottom.pack(pady=10)
 
-        self.computer_frame = Frame(self.master)
+        self.computer_frame = Frame(self.game_frame)
         self.comp_choice = StringVar()
         self.computer_label = Label(self.computer_frame, text='Computer\'s Choice')
         self.computer_entry = Entry(self.computer_frame, textvariable=self.comp_choice)
-        self.computer_wins = Label(self.computer_frame, text=f'Computer wins: {self.__comp_wins}')
+        self.comp_winner = StringVar()
+        self.computer_wins = Label(self.computer_frame, textvariable=self.comp_winner)
+        self.computer_wins.pack(side=BOTTOM)
         self.computer_label.pack(side=TOP)
         self.computer_entry.pack(side=BOTTOM)
-        self.computer_frame.place(x=395, y=150)
+        self.computer_frame.pack(pady=40)
 
-        self.win = Frame(self.master)
+        self.win = Frame(self.game_frame)
         self.winner = StringVar()
         self.win_counter = Label(self.win, textvariable=self.winner)
         self.win.pack()
+        self.win.configure(bg='blue')
+        self.win_counter.configure(bg='blue')
+
+        # Win Frame
+        self.win_frame = Frame(window)
+        self.win_frame.configure(bg='blue')
+        self.win_main_button = Button(self.win_frame, text='Start Over', command=self.start_over)
+        self.win_label = Label(self.win_frame, text='You Win!', font=14)
+        self.win_label.pack(pady=75)
+        self.win_main_button.pack(pady=50)
+
+        # Loss Frame
+        self.loss_frame = Frame(window)
+        self.loss_frame.configure(bg='blue')
+        self.loss_main_button = Button(self.loss_frame, text='Start Over', command=self.start_over)
+        self.loss_label = Label(self.loss_frame, text='You Lose!', font=14)
+        self.loss_label.pack(pady=75)
+        self.loss_main_button.pack(pady=50)
+
+        # Start Frame
+        self.start_frame = Frame(window)
+        self.start_frame.configure(bg='blue')
+        self.game_label = Label(self.start_frame, text='Boulder, Parchment, Shears', font=14, relief='raised')
+        self.start_button = Button(self.start_frame, text='Start', command=self.start)
+        self.rule_button = Button(self.start_frame, text='Rules', command=self.rules)
+        self.game_label.pack(side=TOP, pady=10)
+        self.start_button.pack(side=LEFT, padx=125,  pady=140)
+        self.rule_button.pack(side=RIGHT, padx=125, pady=140)
+
+        # Rules Frame
+        self.rules_frame = Frame(window)
+        self.rules_frame.configure(bg='blue')
+        self.main_button = Button(self.rules_frame, text='Main Menu', command=self.start_over)
+        self.rules_label = Label(self.rules_frame, text='Type in Boulder, Parchment, or Shears, in the player entry box'
+                                                        '\n'
+                                                        'the computer will randomly choose one and output it. First one'
+                                                        '\n'
+                                                        'to three wins, is the winner. Boulder beats Shears, Parchment'
+                                                        '\n'
+                                                        'beats Boulder, and Shears beats Parchment, if the choice is\n'
+                                                        'the same it is a tie.', font=14)
+        self.rules_label.pack(pady=50)
+        self.main_button.pack(pady=50)
 
         self.error_message = Label(self.master, text='Please type Boulder, Parchment, or Shears ')
+        self.error_message.configure(bg='blue')
+        self.start_frame.pack(fill='both')
 
     def game_start(self):
         self.error_message.forget()
@@ -54,14 +105,48 @@ class Window:
             self.win_counter.pack(side=TOP)
             if test == 6:
                 self.winner.set('Computer Wins')
-                self.__comp_wins += 1
+                global comp_wins
+                comp_wins += 1
+                self.comp_winner.set(f'Computer wins: {comp_wins}')
+                if comp_wins >= 3:
+                    self.game_frame.forget()
+                    self.loss_frame.pack()
             elif test == 5:
                 self.winner.set('Player Wins')
-                self.__player_wins += 1
+                global player_wins
+                player_wins += 1
+                self.player_winner.set(f'player wins: {player_wins}')
+                if player_wins >= 3:
+                    self.game_frame.forget()
+                    self.win_frame.pack()
             elif test == 4:
                 self.winner.set('It is a Tie')
 
+    def start(self):
+        self.start_frame.forget()
+        self.game_frame.pack(fill='both')
+        self.game_frame.configure(bg='blue')
 
+    def rules(self):
+        self.start_frame.forget()
+        self.rules_frame.pack()
+
+    def start_over(self):
+        global player_wins
+        global comp_wins
+        player_wins = 0
+        comp_wins = 0
+        self.win_frame.forget()
+        self.rules_frame.forget()
+        self.loss_frame.forget()
+        self.comp_winner.set(f'Computer wins: {comp_wins}')
+        self.player_winner.set(f'Player wins: {player_wins}')
+        self.choice.set('')
+        self.comp_choice.set('')
+        self.start_frame.pack()
+
+
+# Got this code from https://stackoverflow.com/questions/3352918/how-to-center-a-window-on-the-screen-in-tkinter
 def center(win):
     """
     centers a tkinter window
