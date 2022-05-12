@@ -28,8 +28,3 @@ def logic(comp, player):
         return 5
     elif comp == 'shears' and player == 'parchment':
         return 6
-
-
-def game(player_choice, computer_choice):
-    final = logic(computer_choice, player_choice)
-    return final
